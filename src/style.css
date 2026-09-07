@@ -1,9 +1,13 @@
 /* লোডশেডিং গেম — বেসিক স্টাইল */
 @import url('https://fonts.googleapis.com/css2?family=Nosifer&display=swap');
 
-body {
+html, body {
   margin: 0;
-  min-height: 100vh;
+  height: 100%;
+  overflow: hidden; /* মোবাইলে ক্যানভাস overflow করে scroll/cut যাতে না হয় */
+}
+
+body {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,5 +16,7 @@ body {
 }
 
 #app {
+  width: 100vw;
+  height: 100vh;
   line-height: 0; /* canvas এর নিচে অতিরিক্ত ফাঁকা জায়গা দূর করার জন্য */
 }
