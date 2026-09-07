@@ -484,43 +484,15 @@ class MainScene extends Phaser.Scene {
 
     // ---- ইন্সট্রাকশন (কয়েক সেকেন্ড পর নিজে থেকে fade out হয়ে যাবে) ----
     this.instructionText = this.add
-      .text(GAME_WIDTH / 2, 20, 'বামে/ডানে ট্যাপ করো লেন পাল্টাতে', {
-        fontSize: '16px',
-        color: '#000000',
-      })
+      .text(
+        GAME_WIDTH / 2,
+        20,
+        'বামে/ডানে ট্যাপ করো (বা \\u2190/\\u2192 কী) লেন পাল্টাতে',
+        { fontSize: '16px', color: '#000000' }
+      )
       .setOrigin(0.5, 0);
     this.tweens.add({
       targets: this.instructionText,
-      alpha: 0,
-      delay: 2600,
-      duration: 500,
-    });
-
-    // ---- মোবাইল প্লেয়ারদের জন্য মাঝখানে দুইটা অ্যারো আইকন (বাম/ডান তীর চিহ্ন)
-    // দেখানো হচ্ছে, যাতে বোঝা যায় স্ক্রিনের বাম/ডান দিকে ট্যাপ করে লেন পাল্টানো
-    // যায় — instruction text-এর মতোই কয়েক সেকেন্ড পর fade out হয়ে যাবে ----
-    const ARROW_Y = GAME_HEIGHT / 2;
-    const ARROW_GAP = 34;
-    this.leftArrowIcon = this.add
-      .text(GAME_WIDTH / 2 - ARROW_GAP, ARROW_Y, '\u25C0', {
-        fontSize: '30px',
-        color: '#ffffff',
-        stroke: '#000000',
-        strokeThickness: 4,
-      })
-      .setOrigin(0.5)
-      .setAlpha(0.85);
-    this.rightArrowIcon = this.add
-      .text(GAME_WIDTH / 2 + ARROW_GAP, ARROW_Y, '\u25B6', {
-        fontSize: '30px',
-        color: '#ffffff',
-        stroke: '#000000',
-        strokeThickness: 4,
-      })
-      .setOrigin(0.5)
-      .setAlpha(0.85);
-    this.tweens.add({
-      targets: [this.leftArrowIcon, this.rightArrowIcon],
       alpha: 0,
       delay: 2600,
       duration: 500,
@@ -1250,6 +1222,14 @@ const config = {
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
   parent: 'app',
+  scale: {
+    // মোবাইলে স্ক্রিনের সাথে পুরো ৮০০x৪৫০ ক্যানভাসটা fit করে ছোট/বড় হবে
+    // (aspect ratio ঠিক রেখে), তাই কোনো টেক্সট/অংশ ভিউপোর্টের বাইরে কাটা পড়বে না।
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
+  },
   scene: [TitleScene, MainScene],
 };
 
