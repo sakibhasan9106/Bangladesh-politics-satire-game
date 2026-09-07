@@ -1,0 +1,52 @@
+<svg viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="120" cy="178" rx="105" ry="8" fill="#000000" opacity="0.15"/>
+
+  <g transform="rotate(-18 105 140)">
+    <circle cx="65" cy="152" r="22" fill="#2b2b2b" stroke="#000" stroke-width="4"/>
+    <circle cx="65" cy="152" r="7" fill="#c9c9c9" stroke="#000" stroke-width="2.5"/>
+    <path d="M55 100 Q105 82 150 102 L156 140 Q105 156 52 140 Z" fill="#2e8b57" stroke="#000" stroke-width="4"/>
+    <path d="M60 100 Q105 70 148 100 L142 106 Q105 84 66 106 Z" fill="#e8c94a" stroke="#000" stroke-width="3.5"/>
+    <rect x="70" y="110" width="60" height="10" rx="4" fill="#f5f0e6" stroke="#000" stroke-width="2.5"/>
+  </g>
+
+  <g transform="rotate(25 182 95)">
+    <circle cx="182" cy="95" r="16" fill="#2b2b2b" stroke="#000" stroke-width="3.5"/>
+    <circle cx="182" cy="95" r="5" fill="#c9c9c9" stroke="#000" stroke-width="2"/>
+  </g>
+
+  <g>
+    <ellipse cx="178" cy="168" rx="10" ry="6" fill="#000" opacity="0.15"/>
+    <path d="M160 160 Q168 148 178 156 L182 168 Q168 172 158 166 Z" fill="#c94a3a" stroke="#000" stroke-width="3.2"/>
+    <circle cx="170" cy="144" r="12" fill="#e0aa74" stroke="#000" stroke-width="3.2"/>
+    <path d="M160 140 Q170 128 180 140" fill="none" stroke="#161616" stroke-width="6" stroke-linecap="round"/>
+    <path d="M158 152 Q152 146 156 138" fill="none" stroke="#e0aa74" stroke-width="7" stroke-linecap="round"/>
+  </g>
+
+  <path d="M40 85 L48 98 L32 98 Z M30 80 L40 90 L24 92 Z M50 70 L54 84 L64 74 Z"
+        fill="#ffd23f" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+
+  <g>
+    <ellipse cx="35" cy="178" rx="16" ry="6" fill="#000" opacity="0.15"/>
+    <rect x="24" y="140" width="10" height="34" rx="4" fill="#2b3a67" stroke="#000" stroke-width="2.8"/>
+    <rect x="38" y="140" width="10" height="34" rx="4" fill="#2b3a67" stroke="#000" stroke-width="2.8"/>
+    <path d="M18 96 Q35 84 52 96 L50 142 L20 142 Z" fill="#c0392b" stroke="#000" stroke-width="3.2"/>
+    <!-- pointing arm moved to separate _arm.svg layer -->
+    <path d="M22 106 Q10 116 16 130" fill="none" stroke="#c0392b" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="35" cy="80" r="15" fill="#e0aa74" stroke="#000" stroke-width="3.2"/>
+    <path d="M26 74 L34 78" fill="none" stroke="#161616" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M44 74 L36 78" fill="none" stroke="#161616" stroke-width="3.4" stroke-linecap="round"/>
+    <ellipse cx="35" cy="88" rx="6" ry="5" fill="#5c1010"/>
+    <path d="M21 72 Q35 58 49 72 Q49 66 35 63 Q21 66 21 72 Z" fill="#161616"/>
+  </g>
+
+  <g>
+    <path d="M8 8 L34 4 L58 10 L86 3 L112 9 L134 2 L150 11 L142 24
+             L150 34 L132 40 L138 52 L112 46 L92 56 L70 45 L46 54
+             L38 42 L18 46 L24 32 L6 28 Z"
+          fill="#ffffff" stroke="#000" stroke-width="3.2" stroke-linejoin="round"/>
+    <text x="79" y="20" font-family="sans-serif" font-size="11.5" font-weight="bold"
+          text-anchor="middle" fill="#000000">আমি গরিব মানুষ,</text>
+    <text x="79" y="42" font-family="sans-serif" font-size="11.5" font-weight="bold"
+          text-anchor="middle" fill="#000000">আমার কোনো দোষ নাই!</text>
+  </g>
+</svg>

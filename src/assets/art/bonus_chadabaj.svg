@@ -1,0 +1,15 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="32" cy="32" r="29" fill="#7a1f1f" stroke="#000" stroke-width="3"/>
+  <!-- bandana-masked face -->
+  <path d="M13 24 Q32 13 51 24 L48 36 Q32 44 16 36 Z" fill="#232323" stroke="#000" stroke-width="2.4"/>
+  <path d="M16 36 L11 46 L22 40 Z" fill="#232323" stroke="#000" stroke-width="2"/>
+  <path d="M48 36 L53 46 L42 40 Z" fill="#232323" stroke="#000" stroke-width="2"/>
+  <path d="M20 26 L29 29" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+  <path d="M44 26 L35 29" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+  <!-- fist -->
+  <ellipse cx="32" cy="53" rx="15" ry="11" fill="#5a3a24" stroke="#000" stroke-width="2.8"/>
+  <!-- cash -->
+  <rect x="17" y="41" width="28" height="12" rx="2" fill="#2e8b57" stroke="#000" stroke-width="2.2"/>
+  <rect x="21" y="37" width="28" height="12" rx="2" fill="#3fae74" stroke="#000" stroke-width="2.2"/>
+  <text x="35" y="46" font-size="9" fill="#fff" font-family="sans-serif" font-weight="bold">Tk</text>
+</svg>

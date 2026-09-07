@@ -1,0 +1,39 @@
+<svg viewBox="0 0 220 150" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="110" cy="138" rx="95" ry="8" fill="#000000" opacity="0.15"/>
+
+  <!-- forearm rising from pedestal -->
+  <rect x="94" y="55" width="32" height="58" rx="6" fill="#c0392b" stroke="#000000" stroke-width="3.4"/>
+  <rect x="98" y="60" width="24" height="10" rx="2" fill="#8e2a1f" opacity="0.5"/>
+
+  <!-- clenched fist -->
+  <circle cx="110" cy="46" r="24" fill="#c0392b" stroke="#000000" stroke-width="3.6"/>
+  <circle cx="94" cy="34" r="10" fill="#c0392b" stroke="#000000" stroke-width="3"/>
+  <circle cx="112" cy="26" r="10.5" fill="#c0392b" stroke="#000000" stroke-width="3"/>
+  <circle cx="129" cy="32" r="9.5" fill="#c0392b" stroke="#000000" stroke-width="3"/>
+  <path d="M92 46 Q98 40 106 46" fill="none" stroke="#8e2a1f" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M110 48 Q116 42 124 48" fill="none" stroke="#8e2a1f" stroke-width="2.4" stroke-linecap="round"/>
+  <!-- thumb wrap -->
+  <path d="M90 52 Q80 46 84 34" fill="none" stroke="#c0392b" stroke-width="10" stroke-linecap="round"/>
+  <path d="M90 52 Q80 46 84 34" fill="none" stroke="#000000" stroke-width="3.6" stroke-linecap="round" opacity="0.0"/>
+
+  <!-- cracked stone pedestal -->
+  <path d="M76 112 L144 112 L150 140 L70 140 Z" fill="#9a9a92" stroke="#000000" stroke-width="3.4"/>
+  <path d="M84 140 L98 116 L88 140 M132 140 L118 114 L128 140" stroke="#5c5c56" stroke-width="2" fill="none"/>
+  <path d="M92 140 Q108 122 128 140" fill="none" stroke="#5c5c56" stroke-width="2.4" stroke-linecap="round"/>
+
+  <!-- protester figure, left, gripping saw handle -->
+  <g>
+    <circle cx="46" cy="104" r="10" fill="#e0aa74" stroke="#000000" stroke-width="2.8"/>
+    <path d="M46 92 Q34 88 34 78 Q46 72 58 78 Q58 88 46 92 Z" fill="#ffffff" stroke="#000000" stroke-width="2.2"/>
+    <path d="M34 112 Q46 104 58 112 L54 138 Q46 142 38 138 Z" fill="#4a6fa5" stroke="#000000" stroke-width="2.8"/>
+    <path d="M58 114 Q70 118 76 126" fill="none" stroke="#e0aa74" stroke-width="10" stroke-linecap="round"/>
+  </g>
+
+  <!-- protester figure, right, gripping saw handle -->
+  <g>
+    <circle cx="176" cy="104" r="10" fill="#e0aa74" stroke="#000000" stroke-width="2.8"/>
+    <path d="M176 92 Q164 88 164 78 Q176 72 188 78 Q188 88 176 92 Z" fill="#2e8b57" stroke="#000000" stroke-width="2.2"/>
+    <path d="M164 112 Q176 104 188 112 L184 138 Q176 142 168 138 Z" fill="#2f2f36" stroke="#000000" stroke-width="2.8"/>
+    <path d="M164 114 Q152 118 146 126" fill="none" stroke="#e0aa74" stroke-width="10" stroke-linecap="round"/>
+  </g>
+</svg>

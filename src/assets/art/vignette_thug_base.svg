@@ -1,0 +1,31 @@
+<svg viewBox="0 0 220 150" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="110" cy="138" rx="95" ry="8" fill="#000000" opacity="0.15"/>
+
+  <rect x="130" y="90" width="70" height="40" fill="#8b5a2b" stroke="#000" stroke-width="3.5"/>
+  <rect x="130" y="80" width="70" height="12" fill="#c9924f" stroke="#000" stroke-width="3"/>
+
+  <g>
+    <circle cx="165" cy="66" r="13" fill="#e0aa74" stroke="#000" stroke-width="3"/>
+    <path d="M152 66 Q152 100 178 100 L178 90 Q165 90 152 66 Z" fill="#4a6fa5" stroke="#000" stroke-width="3"/>
+    <path d="M154 60 Q160 48 170 60" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="161" cy="63" r="2" fill="#000"/>
+    <circle cx="169" cy="63" r="2" fill="#000"/>
+  </g>
+
+  <g>
+    <ellipse cx="55" cy="132" rx="18" ry="6" fill="#000" opacity="0.15"/>
+    <rect x="42" y="96" width="12" height="34" rx="4" fill="#2b2b2b" stroke="#000" stroke-width="2.6"/>
+    <rect x="58" y="96" width="12" height="34" rx="4" fill="#2b2b2b" stroke="#000" stroke-width="2.6"/>
+    <path d="M36 50 Q57 36 78 50 L74 100 L40 100 Z" fill="#3a3a3a" stroke="#000" stroke-width="3.2"/>
+    <!-- other arm holding a sack marked money -->
+    <path d="M40 60 Q24 66 26 80" fill="none" stroke="#3a3a3a" stroke-width="10" stroke-linecap="round"/>
+    <ellipse cx="24" cy="86" rx="14" ry="16" fill="#c9924f" stroke="#000" stroke-width="3"/>
+    <text x="24" y="90" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="#000">৳</text>
+    <circle cx="57" cy="40" r="14" fill="#3a3a3a" stroke="#000" stroke-width="3.2"/>
+    <path d="M43 38 Q57 34 71 38 L71 44 Q57 40 43 44 Z" fill="#1a1a1a"/>
+    <path d="M48 42 L52 46 M62 42 L66 46" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+  </g>
+
+  <path d="M100 30 L108 20 M108 30 L118 24 M96 20 L100 10"
+        stroke="#000" stroke-width="2.4" stroke-linecap="round"/>
+</svg>
