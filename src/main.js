@@ -117,10 +117,14 @@ const OBSTACLE_DESPAWN_T = 1.08;
 
 // ---- বোনাস আইটেম ----
 const BONUS_TYPES = [
+  { key: 'shontrashi', texture: 'bonusShontrashi', name: 'সন্ত্রাসী' },
   { key: 'chadabaj', texture: 'bonusChadabaj', name: 'চাঁদাবাজ' },
   { key: 'chintaikari', texture: 'bonusChintaikari', name: 'ছিনতাইকারি' },
-  { key: 'shontrashi', texture: 'bonusShontrashi', name: 'সন্ত্রাসী' },
 ];
+// ইউজারের চাওয়া: বোনাস র‍্যান্ডম না এসে fixed প্যাটার্নে আসুক (প্রতিটা টাইপ পরপর দুইবার),
+// যাতে প্রতিটা সাউন্ড effect মানুষ শুনতে পারে — pure random হলে কোনো টাইপ বারবার
+// চলে আসতে পারে আর অন্য কোনো টাইপের সাউন্ড অনেকক্ষণ নাও বাজতে পারে
+const BONUS_SEQUENCE = BONUS_TYPES.flatMap((type) => [type, type]);
 // ইউজারের চাওয়া অনুযায়ী: বোনাস আইটেম ক্যারেক্টার কাছে এলে (t=1, perspective scale
 // সর্বোচ্চ 1.15x) মূল ক্যারেক্টারের সমান সাইজ দেখাবে — তাই base size টা 1.15 দিয়ে
 // ভাগ করে রাখা হলো, যাতে scale করার পর ফাইনাল সাইজ CHAR_DISPLAY_WIDTH/HEIGHT-এর সমান হয়
@@ -511,7 +515,9 @@ class MainScene extends Phaser.Scene {
         {
           fontFamily: BENGALI_FONT,
           fontSize: '16px',
-          color: '#000000',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 3,
           padding: BENGALI_TEXT_PADDING,
         }
       )
@@ -521,6 +527,52 @@ class MainScene extends Phaser.Scene {
       alpha: 0,
       delay: 2600,
       duration: 500,
+    });
+
+    // ---- ট্যাপ-জোন সংকেত: বাম/ডান দিকে তীর আইকন, যাতে বোঝা যায় কোথায়
+    // চাপ দিতে হবে (instructionText-এর মতোই কয়েক সেকেন্ড পর ফেইড আউট) ----
+    const tapHintY = GAME_HEIGHT / 2 + 40;
+    this.leftTapHint = this.add
+      .text(GAME_WIDTH * 0.22, tapHintY, '◀', {
+        fontSize: '48px',
+        color: '#ffffff',
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 5,
+      })
+      .setOrigin(0.5)
+      .setAlpha(0.75)
+      .setDepth(35);
+    this.rightTapHint = this.add
+      .text(GAME_WIDTH * 0.78, tapHintY, '▶', {
+        fontSize: '48px',
+        color: '#ffffff',
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 5,
+      })
+      .setOrigin(0.5)
+      .setAlpha(0.75)
+      .setDepth(35);
+    this.tweens.add({
+      targets: [this.leftTapHint, this.rightTapHint],
+      alpha: 0,
+      delay: 2600,
+      duration: 500,
+    });
+    this.tweens.add({
+      targets: this.leftTapHint,
+      x: this.leftTapHint.x - 10,
+      duration: 500,
+      yoyo: true,
+      repeat: 3,
+    });
+    this.tweens.add({
+      targets: this.rightTapHint,
+      x: this.rightTapHint.x + 10,
+      duration: 500,
+      yoyo: true,
+      repeat: 3,
     });
 
     // ---- Score/Level state ----
@@ -560,8 +612,10 @@ class MainScene extends Phaser.Scene {
     this.levelText = this.add
       .text(GAME_WIDTH - 20, 8, 'Level: 1', {
         fontSize: '17px',
-        color: '#000000',
+        color: '#3ddb4d',
         fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 3,
       })
       .setOrigin(1, 0)
       .setDepth(30);
@@ -571,8 +625,10 @@ class MainScene extends Phaser.Scene {
       .text(GAME_WIDTH - 20, 28, 'লুটপাট: 0', {
         fontFamily: BENGALI_FONT,
         fontSize: '20px',
-        color: '#000000',
+        color: '#3ddb4d',
         fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 3,
         padding: BENGALI_TEXT_PADDING,
       })
       .setOrigin(1, 0)
@@ -603,6 +659,7 @@ class MainScene extends Phaser.Scene {
     // ---- Obstacle/Bonus/Vignette ট্র্যাকিং array ----
     this.obstacles = []; // {sprite, lane, t}
     this.bonuses = []; // {sprite, label, lane, t}
+    this.bonusSpawnIndex = 0; // BONUS_SEQUENCE-এর মধ্যে পরের বোনাস কোনটা হবে তার কাউন্টার
     this.vignetteItems = []; // {container, pivotContainers}
 
     // ---- Difficulty state ----
@@ -774,6 +831,15 @@ class MainScene extends Phaser.Scene {
     g.fillRoundedRect(mb.x + 2, mb.y + 1.5, Math.max(0, (mb.w - 4) * this.moneyFillRatio), mb.h - 3, 2.5);
     g.lineStyle(2, 0x000000, 0.6);
     g.strokeRoundedRect(mb.x, mb.y, mb.w, mb.h, 3);
+
+    // -- ডান দিকে Level/লুটপাট প্যানেল (আগে টেক্সটগুলো সরাসরি ব্যাকগ্রাউন্ড
+    // আর্টের ওপর বসানো ছিল বলে কনট্রাস্ট কম/অগোছালো লাগছিল — বাম দিকের
+    // health/money bar-এর মতোই একই আধা-স্বচ্ছ প্যানেল বসিয়ে দেওয়া হলো, যাতে
+    // পুরো HUD-এর ভিজ্যুয়াল স্ট্যান্ডার্ড এক রকম থাকে) --
+    g.fillStyle(0x2b2b2b, 0.55);
+    g.fillRoundedRect(GAME_WIDTH - 170, 3, 160, 51, 6);
+    g.lineStyle(2, 0x000000, 0.6);
+    g.strokeRoundedRect(GAME_WIDTH - 170, 3, 160, 51, 6);
   }
 
   switchLane(direction) {
@@ -837,7 +903,8 @@ class MainScene extends Phaser.Scene {
 
   spawnBonus() {
     if (this.isGameOver) return;
-    const type = Phaser.Utils.Array.GetRandom(BONUS_TYPES);
+    const type = BONUS_SEQUENCE[this.bonusSpawnIndex % BONUS_SEQUENCE.length];
+    this.bonusSpawnIndex += 1;
     const lane = Phaser.Math.Between(0, LANE_COUNT - 1);
     const sprite = this.add.image(VANISH_X, VANISH_Y, type.texture);
     sprite.setDisplaySize(BONUS_DISPLAY_WIDTH * 0.28, BONUS_DISPLAY_HEIGHT * 0.28);
@@ -1089,6 +1156,8 @@ class MainScene extends Phaser.Scene {
     this.moneyIconImg.setVisible(false);
     this.levelText.setVisible(false);
     this.scoreText.setVisible(false);
+    this.leftTapHint.setVisible(false);
+    this.rightTapHint.setVisible(false);
 
     // ব্ল্যাক ওভারলে ফেড-ইন (alpha 0 → 1, দ্রুত কিন্তু হঠাৎ কালো না হয়ে
     // একটু smooth transition)
