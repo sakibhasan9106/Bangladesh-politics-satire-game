@@ -1,13 +1,15 @@
 /* লোডশেডিং গেম — বেসিক স্টাইল */
-@import url('https://fonts.googleapis.com/css2?family=Nosifer&display=swap');
-
-html, body {
-  margin: 0;
-  height: 100%;
-  overflow: hidden; /* মোবাইলে ক্যানভাস overflow করে scroll/cut যাতে না হয় */
-}
+/* FIX (landscape-full-size bug): Nosifer ফন্টের @import আগে এখানে টপে
+   ছিল — @import ব্লকিং, মানে পুরো এই stylesheet-এর বাকি অংশ (নিচের
+   .force-landscape-rotate rules সহ) parse হওয়া আটকে থাকতো যতক্ষণ না
+   Google Fonts থেকে ফাইল লোড হয়। Phaser এর মধ্যে boot হয়ে ভুল
+   (rotate-হওয়ার-আগের) সাইজ মেপে ফেলতে পারতো। এখন ফন্ট লোড হচ্ছে
+   index.html-এর <head>-এ একটা non-blocking <link> দিয়ে, এই ফাইলের CSS
+   parsing-এর সাথে কোনো সম্পর্ক নাই। */
 
 body {
+  margin: 0;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,7 +18,20 @@ body {
 }
 
 #app {
+  line-height: 0; /* canvas এর নিচে অতিরিক্ত ফাঁকা জায়গা দূর করার জন্য */
   width: 100vw;
   height: 100vh;
-  line-height: 0; /* canvas এর নিচে অতিরিক্ত ফাঁকা জায়গা দূর করার জন্য */
+  overflow: hidden;
+}
+
+/* =====================================================================
+   LANDSCAPE-5: canvas-এর position/size/rotation এখন সম্পূর্ণভাবে
+   src/main.js-এর layoutCanvas() থেকে ইনলাইন স্টাইল দিয়ে সেট হয় (position:
+   fixed; top/left:50%; transform: translate(-50%,-50%) [+ rotate(90deg)
+   Android-portrait হলে])। এখানে শুধু display:block রাখা হচ্ছে যাতে canvas-এর
+   ডিফল্ট inline-element বিহেভিয়ার (নিচে অতিরিক্ত ফাঁকা জায়গা) না থাকে।
+   ===================================================================== */
+#app canvas {
+  display: block;
+  filter: contrast(1.15) saturate(1.1);
 }

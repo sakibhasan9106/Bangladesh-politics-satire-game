@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import './style.css';
+import { isAndroidBrowser, isIOS, isPortrait, attemptLandscapeLock } from './utils/device.js';
 
 // =====================================================================
 // PSEUDO-3D PIVOT — Iteration 3D-1
@@ -54,6 +55,14 @@ import gameOverSfxFile from './assets/sfx/gameover_background.mp3?no-inline';
 import bonusChadabajSfxFile from './assets/sfx/chadabaj.mp3?no-inline';
 import bonusChintaikariSfxFile from './assets/sfx/chintaikari.mp3?no-inline';
 import bonusShontrashiSfxFile from './assets/sfx/sontrasii.mp3?no-inline';
+
+// FIX (বাংলা টেক্সট উপর থেকে কাটা যাওয়ার বাগ): সব বাংলা টেক্সটে এই ফন্ট
+// ব্যবহার করা হচ্ছে (index.html-এ Google Fonts থেকে লোড করা)। এর সাথে
+// প্রতিটা বাংলা .text() কলে padding.top যোগ করা আছে, কারণ Phaser-এর canvas
+// টেক্সট মেট্রিক্স হিসাব বাংলা মাত্রা/কার-চিহ্নের (বেসলাইনের ওপরে ওঠা অংশ)
+// জন্য যথেষ্ট জায়গা রাখে না — padding ছাড়া টেক্সটের ওপরের অংশ কেটে যায়।
+const BENGALI_FONT = '"Noto Sans Bengali", "Nirmala UI", "Vrinda", sans-serif';
+const BENGALI_TEXT_PADDING = { top: 16, bottom: 8 };
 
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 450;
@@ -115,8 +124,8 @@ const BONUS_TYPES = [
 // ইউজারের চাওয়া অনুযায়ী: বোনাস আইটেম ক্যারেক্টার কাছে এলে (t=1, perspective scale
 // সর্বোচ্চ 1.15x) মূল ক্যারেক্টারের সমান সাইজ দেখাবে — তাই base size টা 1.15 দিয়ে
 // ভাগ করে রাখা হলো, যাতে scale করার পর ফাইনাল সাইজ CHAR_DISPLAY_WIDTH/HEIGHT-এর সমান হয়
-const BONUS_DISPLAY_WIDTH = CHAR_DISPLAY_WIDTH / 1.15; // ≈ 45.2
-const BONUS_DISPLAY_HEIGHT = CHAR_DISPLAY_HEIGHT / 1.15; // ≈ 64.3
+const BONUS_DISPLAY_WIDTH = CHAR_DISPLAY_WIDTH / 1.0; // ≈ 70 (Issue 5: আরেকটু বড় করার জন্য 1.15→1.0)
+const BONUS_DISPLAY_HEIGHT = CHAR_DISPLAY_HEIGHT / 1.0; // ≈ 100 (Issue 5: আরেকটু বড় করার জন্য 1.15→1.0)
 const BONUS_SCORE_VALUE = 10;
 const MONEY_BAR_SCORE_STEP = 50; // প্রতি ৫০ স্কোরে money bar একবার পূর্ণ হয়ে রিসেট হবে (cosmetic)
 
@@ -321,20 +330,24 @@ class TitleScene extends Phaser.Scene {
       renderTitle();
     }
 
-    // ---- সাবটাইটেল ----
+    // ---- ইংরেজি ট্যাগলাইন (বোল্ড) — বাংলা সাবটাইটেল বাদ দিয়ে শুধু এটাই রাখা হলো ----
     this.add
-      .text(GAME_WIDTH / 2, 250, 'একটা লোডশেডিং স্যাটায়ার গেম', {
-        fontSize: '18px',
-        color: '#cccccc',
+      .text(GAME_WIDTH / 2, 260, 'A POLITICAL SATIRE GAME', {
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '16px',
+        color: '#999999',
+        fontStyle: 'bold',
       })
       .setOrigin(0.5);
 
     // ---- Tap to start (ব্লিংক) ----
     const startText = this.add
       .text(GAME_WIDTH / 2, 340, 'Tap / Space চাপো শুরু করতে', {
+        fontFamily: BENGALI_FONT,
         fontSize: '20px',
         color: '#ffffff',
         fontStyle: 'bold',
+        padding: BENGALI_TEXT_PADDING,
       })
       .setOrigin(0.5);
     this.tweens.add({
@@ -345,7 +358,14 @@ class TitleScene extends Phaser.Scene {
       repeat: -1,
     });
 
-    const goToGame = () => this.scene.start('MainScene');
+    // LANDSCAPE-2: এই tap/space handler-টাই আসল "user gesture" — এর ভেতর
+    // থেকেই Fullscreen+orientation-lock চেষ্টা করা লাগবে (browser এর বাইরে
+    // কল করলে permission দেবে না)। fire-and-forget — কোনো await না, তাই
+    // fail/slow হলেও গেম শুরু হতে এক মুহূর্তও দেরি হবে না।
+    const goToGame = () => {
+      attemptLandscapeLock();
+      this.scene.start('MainScene');
+    };
     this.input.once('pointerdown', goToGame);
     this.input.keyboard.once('keydown-SPACE', goToGame);
   }
@@ -487,8 +507,13 @@ class MainScene extends Phaser.Scene {
       .text(
         GAME_WIDTH / 2,
         20,
-        'বামে/ডানে ট্যাপ করো (বা \\u2190/\\u2192 কী) লেন পাল্টাতে',
-        { fontSize: '16px', color: '#000000' }
+        'বামে/ডানে ট্যাপ করো লেন পাল্টাতে',
+        {
+          fontFamily: BENGALI_FONT,
+          fontSize: '16px',
+          color: '#000000',
+          padding: BENGALI_TEXT_PADDING,
+        }
       )
       .setOrigin(0.5, 0);
     this.tweens.add({
@@ -544,9 +569,11 @@ class MainScene extends Phaser.Scene {
     // Iteration 8, ফিচার #২: "Score" → "লুটপাট"
     this.scoreText = this.add
       .text(GAME_WIDTH - 20, 28, 'লুটপাট: 0', {
+        fontFamily: BENGALI_FONT,
         fontSize: '20px',
         color: '#000000',
         fontStyle: 'bold',
+        padding: BENGALI_TEXT_PADDING,
       })
       .setOrigin(1, 0)
       .setDepth(30);
@@ -650,9 +677,11 @@ class MainScene extends Phaser.Scene {
     // Iteration 8, ফিচার #১: "Game Over" → "লোডশেডিং চলছে..." (satirical থিম)
     this.gameOverText = this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40, 'লোডশেডিং চলছে...', {
+        fontFamily: BENGALI_FONT,
         fontSize: '36px',
         color: '#ff0000',
         fontStyle: 'bold',
+        padding: BENGALI_TEXT_PADDING,
       })
       .setOrigin(0.5)
       .setDepth(20)
@@ -663,9 +692,11 @@ class MainScene extends Phaser.Scene {
     // টেক্সট দেখা যেত না
     this.finalScoreText = this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 12, '', {
+        fontFamily: BENGALI_FONT,
         fontSize: '22px',
         color: '#ffffff',
         fontStyle: 'bold',
+        padding: BENGALI_TEXT_PADDING,
       })
       .setOrigin(0.5)
       .setDepth(20)
@@ -689,6 +720,9 @@ class MainScene extends Phaser.Scene {
           blur: 4,
           fill: true,
         },
+        // stroke/shadow যোগ হলে glyph-এর bounding box বেড়ে যায়, padding
+        // ছাড়া সেই বাড়তি অংশও (বিশেষত ওপরে/নিচে) কেটে যেতে পারে
+        padding: { top: 8, bottom: 8 },
       })
       .setOrigin(0.5)
       .setDepth(20)
@@ -703,12 +737,17 @@ class MainScene extends Phaser.Scene {
     // রঙ সাদা করা হয়েছে (আগে কালো ছিল) — গেম-ওভারের কালো ব্ল্যাকআউটের ওপরেও
     // যেন পড়া যায় (স্বাভাবিক গেমপ্লের সময়ও রাস্তার ছবির ওপর ভালোভাবেই দেখা যাবে)
     this.creditText = this.add
-      .text(10, GAME_HEIGHT - 10, 'নির্মাতা: Sakib Hasan (আর কেউ দায়ী না)', {
+      .text(10, GAME_HEIGHT - 10, 'Created by Sakib Hasan', {
+        fontFamily: BENGALI_FONT,
         fontSize: '11px',
+        fontStyle: 'normal',
         color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 3,
+        padding: BENGALI_TEXT_PADDING,
       })
       .setOrigin(0, 1)
-      .setAlpha(0.55)
+      .setAlpha(0.9)
       .setDepth(30)
       .setScrollFactor(0);
   }
@@ -804,11 +843,13 @@ class MainScene extends Phaser.Scene {
     sprite.setDisplaySize(BONUS_DISPLAY_WIDTH * 0.28, BONUS_DISPLAY_HEIGHT * 0.28);
     const label = this.add
       .text(VANISH_X, VANISH_Y, type.name, {
+        fontFamily: BENGALI_FONT,
         fontSize: '10px',
         color: '#000000',
         fontStyle: 'bold',
         backgroundColor: '#ffffffcc',
-        padding: { x: 2, y: 1 },
+        padding: { x: 2, y: 1, top: 8 },
+        resolution: window.devicePixelRatio || 2, // Issue 5: লেবেল টেক্সট শার্প করা (সাইজ অপরিবর্তিত, শুধু রেন্ডার-ডেনসিটি বাড়ানো)
       })
       .setOrigin(0.5, 0);
     // Iteration 8: bonus-এর key রাখা হলো, যাতে eatBonus() নির্দিষ্ট বোনাস
@@ -974,16 +1015,16 @@ class MainScene extends Phaser.Scene {
       .setAlpha(0.95);
     const popup = this.add
       .text(mouthX, mouthY - 10, `+${BONUS_SCORE_VALUE}%`, {
-        fontSize: '22px',
-        color: '#ff2b2b',
+        fontSize: '24px',
+        color: '#ffe066',
         fontStyle: 'bold',
-        stroke: '#5c0a0a',
-        strokeThickness: 4,
+        stroke: '#3a0505',
+        strokeThickness: 5,
         shadow: {
           offsetX: 0,
           offsetY: 2,
-          color: '#3a0505',
-          blur: 3,
+          color: '#000000',
+          blur: 4,
           fill: true,
         },
       })
@@ -1053,6 +1094,10 @@ class MainScene extends Phaser.Scene {
     // একটু smooth transition)
     this.gameOverOverlay.setAlpha(0).setVisible(true);
     this.tweens.add({ targets: this.gameOverOverlay, alpha: 1, duration: 200 });
+
+    // গেমপ্লেতে creditText normal থাকে, গেম-ওভারের সময় bold করা হচ্ছে
+    // (ইউজারের অনুরোধ অনুযায়ী: খেলার সময় কম bold, গেম-ওভারে বেশি জোরালো)
+    this.creditText.setFontStyle('bold');
 
     this.gameOverText.setVisible(true);
     this.finalScoreText.setText(`সর্বমোট লুটপাট: ${this.score}`);
@@ -1217,20 +1262,168 @@ class MainScene extends Phaser.Scene {
   }
 }
 
+// =====================================================================
+// LANDSCAPE-5: পুরনো v2/v3/v4 পদ্ধতি (Phaser.Scale.FIT + #rotate-wrapper +
+// setParentSize()) বাদ দেওয়া হলো। মূল সমস্যা ছিল: Phaser নিজে থেকেই
+// updateScale()-এর শেষে parent-কে (getBoundingClientRect দিয়ে) আবার মাপে,
+// আমাদের ম্যানুয়াল সাইজ/wrapper-কে ওভাররাইড করে দিতো — এই কারণেই ডান/নিচ
+// পাশে অসম গ্যাপ থেকে যাচ্ছিলো (ইউজার রিপোর্ট: "dui pash soman hocche na")।
+//
+// সমাধান: scale.mode = NONE দিয়ে Phaser-কে parent-measurement থেকেই সম্পূর্ণ
+// সরিয়ে দেওয়া হলো (Phaser আর কখনো canvas-এর CSS size/position নিজে থেকে
+// বদলাবে না)। canvas-এর position/size/rotation এখন ১০০% আমাদের নিজের
+// layoutCanvas() ফাংশন থেকে সরাসরি ইনলাইন স্টাইল দিয়ে বসানো হয় — single
+// source of truth, কোনো conflict নাই।
+//
+// দ্বিতীয় বাগ (এখনো ফিক্স হয়নি এই পর্যন্ত): "left/right button, restart
+// button কাজ করছে না" — কারণ CSS দিয়ে canvas 90° রোটেট করলে Phaser-এর
+// ডিফল্ট touch-coordinate ম্যাপিং (scaleManager.transformX/Y, সহজ লিনিয়ার
+// ফর্মুলা: (pageX - bounds.left) * scale) rotation-অ্যাওয়ার না — screen-এর
+// X বরাবর সোয়াইপ আসলে rotated canvas-এর ভেতরে Y বরাবর হওয়া উচিত (আর উল্টো),
+// তাই ট্যাপ সবসময় ভুল জায়গায়/ভুল লেনে গিয়ে পড়তো (PROJECT_STATUS-এ এটা
+// "LANDSCAPE-4: touch remap" হিসেবে আগেই চিহ্নিত করা ছিল, বাস্তবায়ন বাকি
+// ছিল)। নিচে input.transformPointer() পুরোপুরি override করে rotation-aware
+// ফর্মুলা বসানো হলো — এটাই একমাত্র জায়গা যেখান দিয়ে Phaser-এর প্রতিটা
+// touch/click (lane-switch, Restart বাটন, সবকিছু) পাস হয়, তাই এক জায়গায়
+// ফিক্স করলেই সব ঠিক হয়ে যাবে।
+// =====================================================================
+
 const config = {
   type: Phaser.AUTO,
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
   parent: 'app',
+  scene: [TitleScene, MainScene],
   scale: {
-    // মোবাইলে স্ক্রিনের সাথে পুরো ৮০০x৪৫০ ক্যানভাসটা fit করে ছোট/বড় হবে
-    // (aspect ratio ঠিক রেখে), তাই কোনো টেক্সট/অংশ ভিউপোর্টের বাইরে কাটা পড়বে না।
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
+    mode: Phaser.Scale.NONE,
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
   },
-  scene: [TitleScene, MainScene],
 };
 
-new Phaser.Game(config);
+console.log(
+  '[device-detect] isAndroidBrowser =', isAndroidBrowser(),
+  '| isIOS =', isIOS(),
+  '| isPortrait =', isPortrait(),
+  '| userAgent =', typeof navigator !== 'undefined' ? navigator.userAgent : '(no navigator)'
+);
+
+let phaserGame = null;
+// layoutCanvas() প্রতিবার চলার পর এখানে আপডেট হয় — rotation-aware
+// input override (নিচে) আর layout ফাংশন দুটোই একই সোর্স-অফ-ট্রুথ ব্যবহার
+// করে, তাই কখনো একে অপরের সাথে অসামঞ্জস্যপূর্ণ হবে না।
+let currentLayout = { rotated: false, scaleFactor: 1 };
+
+/**
+ * canvas-এর CSS position/size/rotation সম্পূর্ণ ম্যানুয়ালি হিসাব করে সেট করে।
+ * (Android অথবা iOS) + portrait হলে ৯০° রোটেট করে canvas-কে fixed position-এ
+ * কেন্দ্রে বসায় (transform-origin কেন্দ্রে, যাতে size বদলালেও position ঠিক
+ * থাকে)।
+ *
+ * ⚠️ iOS-FIX: আগে এই শর্ত শুধু `isAndroidBrowser() && isPortrait()` ছিল,
+ * তাই iOS ইউজার portrait ধরে রাখলে গেম rotate না হয়ে crop অবস্থায় থেকে
+ * যেত। এখানে `isIOS()` OR করে যোগ করা হয়েছে — Android-এর শর্ত অপরিবর্তিত
+ * রাখা হয়েছে (isAndroidBrowser() true হলে আগের মতোই rotated=true হবে,
+ * এই OR তার আচরণ একটুও বদলায় না), শুধু iOS+portrait-এর জন্য নতুন করে
+ * true হওয়ার একটা পথ যোগ হলো। নিচের পুরো layout/scale/input-transform
+ * লজিক rotated flag-এর ওপর ভিত্তি করেই কাজ করে (device-নির্দিষ্ট কোনো
+ * branching নাই), তাই Android-এ যা কাজ করছিল তা অপরিবর্তিত থাকবে —
+ * iOS শুধু একই rotated=true পাথে ঢুকবে।
+ */
+function layoutCanvas() {
+  const canvas = phaserGame && phaserGame.canvas;
+  if (!canvas) return;
+
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const rotated = (isAndroidBrowser() || isIOS()) && isPortrait();
+
+  // rotated অবস্থায় গেমের জন্য উপলব্ধ জায়গা: স্ক্রিনের height হয়ে যায়
+  // গেমের "width" (আর উল্টো) — যেহেতু পুরো জিনিসটাই ৯০° ঘুরে যাচ্ছে।
+  const availW = rotated ? vh : vw;
+  const availH = rotated ? vw : vh;
+
+  const scaleFactor = Math.min(availW / GAME_WIDTH, availH / GAME_HEIGHT);
+  const dispW = Math.floor(GAME_WIDTH * scaleFactor);
+  const dispH = Math.floor(GAME_HEIGHT * scaleFactor);
+
+  const style = canvas.style;
+  style.position = 'fixed';
+  style.top = '50%';
+  style.left = '50%';
+  style.width = `${dispW}px`;
+  style.height = `${dispH}px`;
+  style.transformOrigin = 'center center';
+  style.transform = rotated
+    ? 'translate(-50%, -50%) rotate(90deg)'
+    : 'translate(-50%, -50%)';
+
+  currentLayout = { rotated, scaleFactor };
+
+  // Phaser-এর cached canvasBounds রিফ্রেশ করা হচ্ছে যাতে (rotated না হওয়া
+  // অবস্থায় ব্যবহৃত হয় এমন) কোনো ডিফল্ট Phaser hit-testing/স্কেল হিসাব
+  // পুরনো/স্টেল bounds ব্যবহার না করে। rotated অবস্থার input নিচের
+  // override সরাসরি canvas.getBoundingClientRect() দিয়ে হিসাব করে, তাই
+  // এটার উপর নির্ভর করে না, কিন্তু non-rotated ডিফল্ট পাথের জন্য দরকার।
+  if (phaserGame) {
+    try {
+      phaserGame.scale.updateBounds();
+    } catch (err) {
+      console.warn('[landscape-5] updateBounds() failed:', err);
+    }
+  }
+}
+
+phaserGame = new Phaser.Game(config);
+
+// ---- Rotation-aware input override ----
+// Phaser-এর প্রতিটা pointer/touch event শেষমেশ এই একটা ফাংশনের ভেতর দিয়ে
+// যায় (InputManager#transformPointer) — এখানে override করলেই lane-switch
+// ট্যাপ, Restart বাটন ক্লিক, সবকিছু rotated অবস্থাতেও সঠিক জায়গায় ম্যাপ হবে।
+// Non-rotated অবস্থায় (desktop/iOS/আসল landscape) আগের মতোই Phaser-এর
+// নিজস্ব transformX/Y কল করা হয় — সেটা এমনিতেই ঠিক আছে, ছোঁয়া হচ্ছে না।
+phaserGame.input.transformPointer = function (pointer, pageX, pageY, wasMove) {
+  const p0 = pointer.position;
+  const p1 = pointer.prevPosition;
+  p1.x = p0.x;
+  p1.y = p0.y;
+
+  let x;
+  let y;
+
+  if (currentLayout.rotated) {
+    const canvas = this.game.canvas;
+    const bounds = canvas.getBoundingClientRect();
+    const sf = currentLayout.scaleFactor || 1;
+    // derivation: canvas-কে fixed position-এ, center-এ, rotate(90deg) দিয়ে
+    // ঘোরানো হয়েছে — তাই স্ক্রিনের pageY বরাবর মুভমেন্ট canvas-এর local X
+    // (গেমের width অক্ষ), আর pageX বরাবর মুভমেন্ট canvas-এর local Y
+    // (উল্টো দিকে, গেমের height অক্ষ) বরাবর হয়।
+    x = (pageY - bounds.top) / sf;
+    y = (bounds.left + bounds.width - pageX) / sf;
+  } else {
+    x = this.scaleManager.transformX(pageX);
+    y = this.scaleManager.transformY(pageY);
+  }
+
+  const a = pointer.smoothFactor;
+  if (!wasMove || a === 0) {
+    p0.x = x;
+    p0.y = y;
+  } else {
+    p0.x = x * a + p1.x * (1 - a);
+    p0.y = y * a + p1.y * (1 - a);
+  }
+};
+
+// প্রথমবার তৈরি হওয়ার পরপরই একবার লেআউট বসিয়ে দেওয়া হচ্ছে।
+layoutCanvas();
+
+// rAF দেরি: resize/orientationchange-এর পর ব্রাউজার layout reflow করার এক
+// ফ্রেম সময় দেওয়া হচ্ছে (বিশেষত address bar animate করার সময় window.inner*
+// stable মান দিতে একটু দেরি করে)।
+const scheduleLayout = () => requestAnimationFrame(layoutCanvas);
+
+window.addEventListener('resize', scheduleLayout);
+window.addEventListener('orientationchange', scheduleLayout);
+window.addEventListener('load', scheduleLayout);

@@ -6,6 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bangladesh Politics — Loadshedding Game</title>
 
+    <!-- FIX (landscape-full-size bug): আগে এই ফন্টটা style.css-এর টপে
+         @import দিয়ে লোড হতো, যেটা render-blocking (পুরো stylesheet parse
+         আটকে দিতো)। এখন non-blocking <link> দিয়ে লোড হচ্ছে, preconnect
+         দিয়ে একটু দ্রুতও হবে। -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nosifer&display=swap" rel="stylesheet" />
+
+    <!-- FIX (বাংলা টেক্সট উপর থেকে কাটা যাওয়ার বাগ): আগে বাংলা টেক্সটের জন্য
+         নির্দিষ্ট কোনো ফন্ট লোড করা হতো না, তাই ব্রাউজার/ডিভাইস নিজে থেকে
+         যেকোনো fallback বাংলা ফন্ট বসাতো। Phaser ক্যানভাসে টেক্সট আঁকার
+         আগে canvas measureText() দিয়ে টেক্সটের height মাপে, কিন্তু বাংলা
+         মাত্রা/কার-চিহ্ন (বেসলাইনের অনেক ওপরে ওঠে এমন) কিছু fallback ফন্টে
+         এই হিসাবে ঠিকভাবে ধরা পড়ে না — ফলে টেক্সটের ওপরের অংশ ক্যানভাস
+         টেক্সচারের বাইরে কেটে যাচ্ছিল। Noto Sans Bengali (নির্ভরযোগ্য,
+         পূর্বনির্ধারিত metrics-সহ) লোড করে + main.js-এ প্রতিটা বাংলা
+         টেক্সটে সেটাকে fontFamily হিসেবে সেট করে, আর padding.top যোগ করে
+         সমস্যাটা ঠিক করা হলো। -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- Facebook-এ শেয়ার করলে প্রিভিউ কার্ড দেখানোর জন্য Open Graph ট্যাগ।
          ⚠️ Deploy করার পর og:url আসল ডোমেইন দিয়ে বদলে দিতে হবে,
          আর একটা og:image (thumbnail ছবি, /public ফোল্ডারে রেখে) যোগ করলে ভালো হয়। -->
@@ -15,6 +38,12 @@
     <meta name="description" content="বাংলাদেশের লোডশেডিং নিয়ে একটা satire endless-runner গেম।" />
   </head>
   <body>
+    <!-- LANDSCAPE-5: আগের #rotate-wrapper/#app nested trick (v2/v3/v4) বাদ
+         দেওয়া হয়েছে — সেটা Phaser-এর নিজস্ব parent-measurement-এর সাথে বার বার
+         conflict করছিলো (size ঠিকভাবে full/centered হচ্ছিলো না)। এখন Phaser-কে
+         scale.mode: NONE দিয়ে parent-measurement থেকেই সরিয়ে দেওয়া হয়েছে —
+         canvas-এর position/size/rotation সরাসরি main.js থেকে ম্যানুয়ালি
+         নিয়ন্ত্রণ করা হচ্ছে, তাই আলাদা wrapper element লাগছে না। -->
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
